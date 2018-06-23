@@ -2,6 +2,27 @@
 
 <br><br><br>
 -->
+
+```
+#Train first
+CUDA_VISIBLE_DEVICES=0 python main.py --dataset_dir=horse2zebra --continue_train=True --print_freq=50
+
+#turn to frames
+youtube-dl <video> -o test.mp4
+ffmpeg -i test.mp4 -f image2 out%06d.jpg 
+
+backup horse2zebra/testA
+copy frames to horse2zebra/testA
+
+CUDA_VISIBLE_DEVICES=0 python main.py --dataset_dir=horse2zebra --phase=test --test_dir=./test5
+
+#STich together in blender or ffmpeg
+
+#voila, awtch cycle GAN video
+
+```
+
+
 # CycleGAN
 
 Tensorflow implementation for learning an image-to-image translation **without** input-output pairs.
