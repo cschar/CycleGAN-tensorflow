@@ -44,6 +44,7 @@ def main(_):
 
     tfconfig = tf.ConfigProto(allow_soft_placement=True)
     tfconfig.gpu_options.allow_growth = True
+    # tfconfig.gpu_options.per_process_gpu_memory_fraction = 0.8
     with tf.Session(config=tfconfig) as sess:
         model = cyclegan(sess, args)
         model.train(args) if args.phase == 'train' \

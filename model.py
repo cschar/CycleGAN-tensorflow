@@ -168,6 +168,10 @@ class cyclegan(object):
                                self.lr: lr})
                 self.writer.add_summary(summary_str, counter)
 
+                # from tensorflow.contrib.memory_stats.python.ops.memory_stats_ops import BytesInUse
+               
+                # with tf.Session() as sess:
+                # print(self.sess.run(BytesInUse()))
                 counter += 1
                 print(("Epoch: [%2d] [%4d/%4d] time: %4.4f" % (
                     epoch, idx, batch_idxs, time.time() - start_time)))
@@ -213,15 +217,18 @@ class cyclegan(object):
         sample_images = [load_train_data(batch_file, is_testing=True) for batch_file in batch_files]
         sample_images = np.array(sample_images).astype(np.float32)
 
-        fake_A, fake_B = self.sess.run(
-            [self.fake_A, self.fake_B],
-            feed_dict={self.real_data: sample_images}
-        )
-        save_images(fake_A, [self.batch_size, 1],
-                    './{}/A_{:02d}_{:04d}.jpg'.format(sample_dir, epoch, idx))
-        save_images(fake_B, [self.batch_size, 1],
-                    './{}/B_{:02d}_{:04d}.jpg'.format(sample_dir, epoch, idx))
-
+        try:
+            fake_A, fake_B = self.sess.run(
+                [self.fake_A, self.fake_B],
+                feed_dict={self.real_data: sample_images}
+            )
+            save_images(fake_A, [self.batch_size, 1],
+                        './{}/A_{:02d}_{:04d}.jpg'.format(sample_dir, epoch, idx))
+            save_images(fake_B, [self.batch_size, 1],
+                        './{}/B_{:02d}_{:04d}.jpg'.format(sample_dir, epoch, idx))
+        except Exception as e:
+            print(e)
+            print("Error sampling model")
     def test(self, args):
         """Test cyclegan"""
         init_op = tf.global_variables_initializer()

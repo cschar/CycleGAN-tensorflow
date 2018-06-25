@@ -3,13 +3,21 @@
 <br><br><br>
 -->
 
+## basic flow
 ```
+
+
 #Train first
 CUDA_VISIBLE_DEVICES=0 python main.py --dataset_dir=horse2zebra --continue_train=True --print_freq=50
 
 #turn to frames
-youtube-dl <video> -o test.mp4
+youtube-dl <video_with_horses> -o test.mp4
 ffmpeg -i test.mp4 -f image2 out%06d.jpg 
+ffmpeg -i myvideo.avi -ss 00:00:10 -vf fps=1/60 img%03d.jpg   # frame every minute, strating at 10 s
+
+#Optional scaling 256x256,  not sure training images need this...
+# but other datasets already were scaled down to 256
+ffmpeg -i youtube_out.mp4 -f image2 -vf scale=256:256 out_%06d.jpg
 
 backup horse2zebra/testA
 copy frames to horse2zebra/testA
@@ -17,9 +25,30 @@ copy frames to horse2zebra/testA
 CUDA_VISIBLE_DEVICES=0 python main.py --dataset_dir=horse2zebra --phase=test --test_dir=./test5
 
 #STich together in blender or ffmpeg
+cd test5
+ffmpeg -i BtoA_image%06d.jpg out.mp4  #make sure no '-' character in name
 
-#voila, awtch cycle GAN video
 
+#voila, watch cycle GAN video
+
+
+
+Grab video time slice
+ffmpeg -ss 3:59:10 -i $(youtube-dl -f 22 -g 'https://www.youtube.com/watch?v=XXXXXXXX') \
+-t 3:06:00
+
+```
+
+#train with different image size output
+```
+#get frames larger than 512
+
+#put in /datasets/your_dataset/   folders trainA trainB testA testB
+
+CUDA_VISIBLE_DEVICES=0 python main.py --dataset_dir=your_dataset --load_size=514 --fine_size=512
+
+ffmpeg -i $(youtube-dl -f 22 -g 'https://www.youtube.com/watch?v=hONkNECf6aE
+') rubgy_out.mp4
 ```
 
 
