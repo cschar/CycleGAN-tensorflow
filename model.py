@@ -12,6 +12,8 @@ from utils import *
 
 class cyclegan(object):
     def __init__(self, sess, args):
+        self.loaded_step = 1
+
         self.sess = sess
         self.batch_size = args.batch_size
         self.image_size = args.fine_size
@@ -127,7 +129,13 @@ class cyclegan(object):
 
         init_op = tf.global_variables_initializer()
         self.sess.run(init_op)
-        self.writer = tf.summary.FileWriter("./logs", self.sess.graph)
+
+        ######### Custom Log Directory
+        log_path = "./logs/{}".format(args.dataset_dir)
+        import os
+        if not os.path.exists(log_path):
+            os.makedirs(log_path)
+        self.writer = tf.summary.FileWriter(log_path, self.sess.graph)
 
         counter = 1
         start_time = time.time()
@@ -135,6 +143,9 @@ class cyclegan(object):
         if args.continue_train:
             if self.load(args.checkpoint_dir):
                 print(" [*] Load SUCCESS")
+                counter = self.loaded_step
+                print("Restored counter to value : {}".format(counter))
+                
             else:
                 print(" [!] Load failed...")
 
@@ -177,9 +188,11 @@ class cyclegan(object):
                     epoch, idx, batch_idxs, time.time() - start_time)))
 
                 if np.mod(counter, args.print_freq) == 1:
+                    print("Sampling model to {}".format(args.sample_dir))
                     self.sample_model(args.sample_dir, epoch, idx)
 
                 if np.mod(counter, args.save_freq) == 2:
+                    print("Saving model to {}".format(args.checkpoint_dir))
                     self.save(args.checkpoint_dir, counter)
 
     def save(self, checkpoint_dir, step):
@@ -203,7 +216,10 @@ class cyclegan(object):
         ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
         if ckpt and ckpt.model_checkpoint_path:
             ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
+            print("restoring ckpt_name {}".format(ckpt_name))
             self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
+            self.loaded_step = int(os.path.basename(ckpt.model_checkpoint_path).split('-')[1])
+
             return True
         else:
             return False

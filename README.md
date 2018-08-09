@@ -10,9 +10,15 @@
 #Train first
 CUDA_VISIBLE_DEVICES=0 python main.py --dataset_dir=horse2zebra --continue_train=True --print_freq=50
 
+CUDA_VISIBLE_DEVICES=0 python main.py --dataset_dir=hockey2rugby --sample_dir=sampleh2r --continue_train=1
+
+tensorboard --logdir=./logs
+
+
 #turn to frames
-youtube-dl <video_with_horses> -o test.mp4
+youtube-dl <video_with_horses> -o test.mp4   ( -f 22   for 720p     -F for available)
 ffmpeg -i test.mp4 -f image2 out%06d.jpg 
+ffmpeg -i test.mp4 -f image2 out%06d.jpg -vf fps=5
 ffmpeg -i myvideo.avi -ss 00:00:10 -vf fps=1/60 img%03d.jpg   # frame every minute, strating at 10 s
 
 #Optional scaling 256x256,  not sure training images need this...
