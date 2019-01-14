@@ -167,6 +167,7 @@ class cyclegan(object):
                 fake_A, fake_B, _, summary_str = self.sess.run(
                     [self.fake_A, self.fake_B, self.g_optim, self.g_sum],
                     feed_dict={self.real_data: batch_images, self.lr: lr})
+                    
                 self.writer.add_summary(summary_str, counter)
                 [fake_A, fake_B] = self.pool([fake_A, fake_B])
 
@@ -213,16 +214,26 @@ class cyclegan(object):
         model_dir = "%s_%s" % (self.dataset_dir, self.image_size)
         checkpoint_dir = os.path.join(checkpoint_dir, model_dir)
 
-        ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
-        if ckpt and ckpt.model_checkpoint_path:
-            ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
-            print("restoring ckpt_name {}".format(ckpt_name))
-            self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
-            self.loaded_step = int(os.path.basename(ckpt.model_checkpoint_path).split('-')[1])
+    
 
-            return True
-        else:
-            return False
+        ckpt_name = "cyclegan.model-126002"
+        print("restoring ckpt_name {}".format(ckpt_name))
+        self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
+        #self.loaded_step = int(os.path.splitext(ckpt_name)[0].split('-')[1])
+
+        return True
+        
+
+        # ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
+        # if ckpt and ckpt.model_checkpoint_path:
+        #     ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
+        #     print("restoring ckpt_name {}".format(ckpt_name))
+        #     self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
+        #     self.loaded_step = int(os.path.basename(ckpt.model_checkpoint_path).split('-')[1])
+
+        #     return True
+        # else:
+        #     return False
 
     def sample_model(self, sample_dir, epoch, idx):
         dataA = glob('./datasets/{}/*.*'.format(self.dataset_dir + '/testA'))
